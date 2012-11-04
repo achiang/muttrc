@@ -1,0 +1,24 @@
+source .muttrc
+source .mutt.gmail.aliases
+
+alternates "(((.*)@chizang\.net)&!ldm@chizang\.net)|(webmaster@tradgirl\.com)"
+
+set from="Alex Chiang <alex@chizang.net>"
+set hostname=gmail.com
+set use_domain
+
+set spoolfile="imaps://imap.gmail.com:993"
+set folder="imaps://imap.gmail.com:993"
+
+account-hook imaps://imap.gmail.com:993/ 'set imap_user=alex@chizang.net imap_pass=XXXXX'
+folder-hook imaps://imap.gmail.com:993/INBOX 'set folder=imaps://imap.gmail.com:993/INBOX'
+
+set sendmail="msmtp -a chizang"
+set sendmail_wait=-1
+
+mailboxes +INBOX "+[Gmail]/All Mail" +[Gmail]/Starred +[Gmail]/Spam +[Gmail]/Trash
+
+bind editor <space> noop
+macro index,pager 	y 	"<save-message>=[Gmail]/All Mail<enter><enter>" "Archive"
+macro index,pager 	d 	"<save-message>=[Gmail]/Trash<enter><enter>" "Trash"
+macro index,pager 	S 	"<save-message>=[Gmail]/Spam<enter><enter>" "Spam"

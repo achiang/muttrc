@@ -1,0 +1,20 @@
+source .muttrc
+source .mutt.canonical.aliases
+
+alternates "((alex\.chiang|achiang)@canonical\.com)|(achiang@ubuntu\.com)"
+
+set from="Alex Chiang <achiang@canonical.com>"
+set hostname=canonical.com
+set use_domain
+
+set spoolfile="imaps://mail.canonical.com:993"
+set folder="imaps://mail.canonical.com:993"
+set record="=Sent"
+
+account-hook imaps://mail.canonical.com:993/ 'set imap_user=XXXXX imap_pass=XXXXXX'
+folder-hook imaps://mail.canonical.com:993/INBOX 'set folder=imaps://mail.canonical.com:993/INBOX'
+
+set query_command="/usr/lib/lbdb/mutt_ldap_query -i '%s'"
+
+set sendmail="msmtp -a canonical"
+set sendmail_wait=-1

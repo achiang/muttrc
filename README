@@ -1,0 +1,203 @@
+This is a medium-sophisticated mutt setup that I've been using and
+refining for the past 12 years or so. It used to be a lot more
+complicated (aka influenced by Sven Guckes ;) but over time, I've
+been attempting to reduce the delta between my quirks and the mutt
+defaults, and this is about where I am today.
+
+The remaining reasons for my quirks are:
+
+  * keybindings that are vim-ish
+  * supports 2 separate IMAP accounts
+  * color scheme and visual layout quirks
+  * fix some annoying default behaviors
+
+I invoke a separate mutt process per folder I want to look at.
+During the day, when I'm concentrating on work, I usually just have
+a single terminal open to my work inbox. If it's a slow day or I'm
+just in an email mood, I'll have two terminals side by side, with
+one open to my work inbox and the other open to my personal inbox.
+
+Or if I'm writing a relatively complicated mail that requires me to
+look at and reference a bunch of old mail (possibly in different
+folders), I'll use one terminal for navigating, reading, and as a
+copy/paste source while using the other terminal to compose my
+response.
+
+If I have a wild hair, I might use tabs inside terminals to have
+even moAR folders open, but that's a somewhat rare occasion.
+
+The high-level interaction between these files are:
+
+  * bash_aliases is how I invoke my personal mutt vs work mutt
+  * the individual mutt configs read the base muttrc config file
+  * the individual mutt configs then layer their own quirks on top
+  * msmtprc is how my outbound mail gets sent
+  * vimrc.mutt isn't very special; it only sets the column-width of
+    my replies to 65, which helps readability and gives plenty of
+    space for multiple levels of "> > > old quotes"
+
+Also:
+
+  * Maildir is the only inbox format that makes sense
+  * make sure you create a ~/.mutt/ directory to hold the header and
+    body caches
+
+Some mildly interesting highlights of my mutt configs:
+
+  * 'alternates'. These lines teach mutt who I am, so that mails to
+    me have a proper status flag while looking at the mutt index.
+  * 'query_command' allows me to use 'control-t' to autocomplete a
+    recipient's address
+  * mutt.gmail demonstrates how I use Google Apps for Your Domain to
+    host my mail, notably by setting imap_user=alex@chizang.net
+    which is how I login to my vanity domain
+  * mutt.gmail also contains some macros to take into account the
+    idea of archiving mail in gmail and marking spam. They could
+    probably be rewritten to match the default gmail keybindings.
+
+  * the F6 binding while in my pager maps to a special split
+    keyboard I own, with a large physical gap between F5 and F6. I
+    use it to send an individual mail to its own new gvim window
+    which I can then drag around to different virtual desktops in
+    case I want to view that mail while reading a web page, perhaps.
+
+    This makes more sense when you realize I use the default Ubuntu
+    setup of 4 virtual desktops, and always have my mail on 1, xchat
+    on 3, web browsers on 4, and actual coding terminals on 2.
+
+Another strange quirk of my mail setup: I do not filter my inbox. On
+any given day, I'll probably receive between 80 to 200 mails at
+work, a large portion of which I'm not interested in (mostly
+automated stuff). While filtering is easy enough...
+    
+  a) I got sick of maintaining a complicated procmailrc years ago
+
+  b) I no longer read linux-kernel email, which was the only
+  situation that truly required filtering.
+
+  c) allowing all the automated crap land in my inbox gives me more
+  situational awareness of my virtual surroundings. If the flow of
+  jenkins auto-landing mails is constant, I know my team is busily
+  working. If those auto-mails slow down, I start poking around to
+  see if our infrastructure broke or start asking what cat videos
+  they're all watching.
+
+  d) deleting in mutt is really fast
+
+  e) I *do* save interesting mail off to various folders for future
+  reference. This tends to be mail addressed directly to me (aka not
+  a mailing list), in which case it gets saved into an obvious topic
+  folder.
+  
+  f) On the other hand, mail that comes from a mailman list simply
+  gets deleted after reading on the assumption that I'll be able to
+  go into the mailman archive later.
+
+Things I do *all* the time:
+
+  * my inbox is my TODO list, and I aggressively delete or save
+    mails to various folders after reading
+  * I tend to handle mail on the thread level, so I'll let an
+    interesting thread build up for a bit in my inbox, and after it
+    dies down, I'll move the entire thread to a topic folder. Or if
+    it's an uninteresting thread, I won't even open it, but just hit
+    control-d to delete it from the index.
+  * tagging multiple mails for batch action is awesome. Use the ';'
+    key to apply a batch action to all tagged mails. For instance,
+    to move a bunch of mail from inbox to a topic folder, I press
+    't' for every mail I want, then ';-s' which does a batch save.
+    Or 'T' to tag a regexp, then ';-d' to delete them all.
+  * another tagging hint: you can tag multiple mails from
+    semi-related threads and then use ';-r' to send a reply that
+    combines the threads into a single response, and let all the
+    followups coalesce back into a single thread. very satisfying.
+  * use the 'l' command as an instant search on your current folder.
+    The mnemonic actually stands for "limit" but you can think of it as
+    search. If I want to see everything in my inbox from Mark, I
+    type 'lmark<enter>' or say all mails with a certain subject, it
+    would be 'lfoo<enter>'. To show all the mails again, 'l~all<enter>'
+  * use 'c' to change mailboxes. when doing so, to get back to your
+    inbox, the shortcut for it is '!'. So if you are in folder
+    '=foo', to get back to your inbox, the sequence is 'c!<enter>'
+
+Not mutt specific, but a bonus vim trick. In Linuxlandia, inline
+quoting is pretty normal. This is where you have mails that go like
+this:
+
+   > > kinda old content from 2 replies ago that goes on
+   > > multiple lines
+
+   your response to that stuff because you were Cc'ed late
+
+   > most recent old content
+
+   your response to the most recent old content
+
+And so forth. Imagine a lot of these mails and a lot of replies, and
+perhaps you now have like 5 levels of quoting. What happens over
+time is that the quoting gets broken as people's various mailers
+have various column widths set, so you end up with something like:
+
+   > > kinda old content from 2 replies ago that goes on
+   > multiple lines etc. etc.
+   > > lorem ipsum doler bla bla bla but now with broken
+   > quoting.
+   > > notice how the quoting levels are screwed up.
+
+I fix people's quoting in my response all the time with a bit of
+manual labor and vim's formatting command. First, you insert the
+quote character where it's missing so that the lines that belong
+together at the same quoting level have the same number of quote
+characters. This sounds tedious but in practice it's not bad at all.
+The intermediate state you end up with is:
+
+   > > kinda old content from 2 replies ago that goes on
+   > > multiple lines etc. etc.
+   > > lorem ipsum doler bla bla bla but now with broken
+   > > quoting.
+   > > notice how the quoting levels are screwed up.
+
+So at least the old quotes are logical, but the varying line widths
+are impossible to read, so the final step is to use the key sequence
+of 'gqap' in vim on the paragraph to reflow the text, ending up
+with:
+
+   > > kinda old content from 2 replies ago that goes on multiple
+   > > lines etc. etc. lorem ipsum doler bla bla bla but now with
+   > > broken quoting. notice how the quoting levels are screwed up.
+
+Hint: this works with /* multi-line comments in C code too */ as
+well as comments in python. Anywhere you have a block of text that
+you want to reflow to fit your defined 'textwidth', you can use
+'gqap'.
+
+One more final hint. Keeping your dot files synced across multiple
+machines is a gigantic pain, so I hooked mine up into Ubuntu One.
+The way it works is:
+
+  $ cd ~/Ubuntu\ One
+  $ mkdir sync.links
+  $ cd sync.links
+  $ mkdir bin
+  $ mkdir dotfiles
+  $ cd ~/Projects
+  $ bzr branch lp:sync.links
+  $ cp sync.links/* ~/Ubuntu\ One/sync.links/bin
+  $ cd ~/Ubuntu\ One/sync.links/bin
+  $ ./get.py
+
+This will copy all your interesting dotfiles from your home
+directory into your Ubuntu One folder, which is then automatically
+synced into the cloud.
+
+Your sensitive files such as your ssh keys and gpg keys are
+further encrypted with a symmetric cipher. Choose a different
+password than your ssh and gpg private passphrases.
+
+When you install a new machine (or vm), your Ubuntu One folder gets
+automatically synced down from the cloud. Now you can navigate to
+your sync.links directory in U1 and create symlinks from your home
+directory to your dotfiles. Your previous environment is now
+replicated, and even better, because they are symlinks, any time you
+edit your dot files on one machine, they get synced to the cloud and
+replicated to all your other machines. Huzzah.

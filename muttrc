@@ -1,0 +1,214 @@
+  set allow_8bit # send data as it is.  no conversion.
+  set ascii_chars=no
+  set attribution="* %n <%a>:"
+  set autoedit  # call editor without prompting for To: and Subject:
+  set beep=no
+  set charset="utf-8"
+
+  set compose_format="%v: SendMenu [Parts: %a | TotalSize: %l]"
+  set confirmcreate  
+  set copy
+
+  set delete=ask-yes
+  set edit_headers     # edit all headers lines in the editor
+  set editor="vim -u .vimrc.mutt '+/^$'"
+  set folder_format="%2C %t %N %10s %d %f"
+  set forward_format="f: %s"
+
+  set include=ask-yes
+  set mail_check=60
+  set nomarkers
+  set mbox_type=Maildir
+  set nopgp_verify_sig  # should I care every time?  naah.
+  set realname="Alex Chiang"
+  set sig_dashes
+  set sort_browser=date
+
+  set timeout=30
+
+  set write_inc=1 #  update number after each       read mail
+  set write_inc=10#  update number after each tenth read mail
+
+  set history=100 # 0.51: number of input lines for prompts to remember
+
+  set nomark_old # set: make distinction between New mail and Old mail.
+  set mime_forward=ask-yes        # mutt-0.92:  now a quadoption!
+  set nomove  # do not move read mails from mailbox to $mbox (was: "set hold")
+
+  set pager_context=1      # number of lines that overlap on paging
+  set pager_index_lines=0   # number of lines to see from the index
+  set pager_stop            # next-undeleted when the end of the mail is shown
+
+  set noprompt_after  # set: gives you a prompt when pager exits
+
+  set quote_regexp="^>"          # some people just use '>' - *sigh*
+  set read_inc=10    # '10': show count number for every tenth mail
+  set recall=ask-yes # do not prompt for recalling postponed mails with 'm'
+  unset record
+
+  set reply_regexp="^((aw|antw.?|antwort|re|r e|r?f|si|sv):[ \t]*)*"
+
+  set reply_to=ask-yes   # "reply":          set:  Use address in Reply-To?
+
+  set shell=bash
+  set sort=threads # sorting method - I definitely like "threads" best
+  set status_on_top # set: present the status bar at top, ie before the index
+  set strict_threads=no
+  set tilde  # show non-existant lines of text with a tilde at begin-of-line
+  set tmpdir="/tmp" # directory where temporary files are to be placed
+  set to_chars="X+TCFL"  # 'X' instead of space - so you see something.
+
+  set index_format="%4C %Z %[!%y%m%d] %-17.17F (%4c) %s"
+  set pager_format="%S [%C/%T] %n (%l) %s %> %P  "
+
+  set status_format="%v: %f (%s) [%M/%m] [NEW=%n] %?V?[%V]?"
+
+  auto_view text/html application/msword
+  alternative_order text/plain text/html
+
+  # Force lookup in mime.types
+  mime_lookup application/octet-stream
+  mime_lookup application/oleobject
+
+  bind attach ' ' select-entry
+  bind attach \Cg exit
+
+#  Defining a default directory for saving attachments to.
+#  The trick used here is to "jump" to the beginning of the input
+#  (using ^A) which leaves default value on the input.
+#  Then you can add the default directory, eg "~/Mail/ATTACH/".
+   macro attach S <save-message><bol>~/Mail/ATTACH/
+
+  macro index  \ep  <parent-message>
+  macro pager  \ep  <parent-message>
+
+## =========================
+## Bindings for browser menu
+## =========================
+
+  bind browser $        check-new
+  bind browser <space>  select-entry
+
+# Unset fcc_attach" to send mails *with* attachments but *without*
+# keeping copies of attachments in the mail log:
+# macro compose ,f ":unset fcc_attach"
+  macro compose ,f ":toggle fcc_attach\r:set ?fcc_attach\r"
+
+#  The usual DEL vs BS problem:
+#  Explicit binding of Delete (aka CTRL-? or ^?)
+#  to the backspace key does the trick:
+   bind editor <delete> delete-char
+
+## ==============================
+## Bindings for index *and* pager
+## ==============================
+
+## Jumping to the next mail that is still unread.
+## Even though I use both New and Old mails
+## I usually prefer "jump-unread" to "jump-new".
+## The TAB key (\t) is convenient for this.
+## To allow jumping to the previous unread mail
+## I use the comma as a prefix to this command:
+#  bind index   \t          next-new
+#  bind pager   \t          next-new
+   bind index   \t          next-unread
+   bind pager   \t          next-unread
+   bind index  ,\t      previous-unread
+   bind pager  ,\t      previous-unread
+
+## ======================
+## Bindings for index
+## ======================
+
+# 980626
+# Repositioning - Moving the current mail around the screen:
+# (use bindings a la Vim for moving the current line)
+   bind index zt current-top
+   bind index zz current-middle
+   bind index zb current-bottom
+
+# index bindings - obvious stuff
+
+   bind index <pagedown>     next-page
+   bind index <pageup>   previous-page
+#  bind index home     first-message    # error with mutt-0.89.1
+#  bind index end       last-message    # error with mutt-0.89.1
+
+   bind index \Cb      previous-page
+   bind index \Cf          next-page # \Cf was 'f'orget-passphrase
+   macro index <esc>\Cf forget-passphrase
+
+
+# Macro:
+# Stian Sletner <sletner@powertech.no> wished that
+# when you view a message with all headers that
+# a forward of this message should therefore include
+# *all* headers.  We can do this with a macro:
+#
+# We will use ",h" to view the mail (avoids conflict
+# with the usual 'h' to view a message with all headers).
+# This is what happens:  Show the message with *all* headers,
+# and show the current status of "forward_weed" for checking.
+# A "forward" should now include *all* headers.  :-)
+  macro index ,h ":unset forward_weed\rh:set ?fcc_attach\r"
+# Homework:  Reset the value "forward_weed" on exit from the pager.  ;-)
+
+  macro index I "c!\n"
+  macro pager I "c!\n"
+  bind pager \Cu half-up
+  bind pager \Cd half-down
+  bind pager ' ' next-page
+  bind pager \Cf next-page
+  bind pager \Cn next-page
+  bind pager -   previous-page
+  bind pager \Cb previous-page
+  bind pager G   bottom
+  bind pager /   search
+  bind pager n   next-undeleted
+  bind pager p   previous-undeleted
+  bind pager R   list-reply
+
+  bind pager ,b   bounce-message
+  bind pager ,f   forward-message
+  bind pager ,g   group-reply
+  bind pager ,m   mail
+  bind pager ,L   list-reply
+  bind pager ,n   reply
+  bind pager ,r   reply
+  bind pager ,a   reply
+  bind pager ,j   next-undeleted
+  bind pager ,k   previous-undeleted
+
+  bind pager backspace   previous-line
+  bind pager b    previous-page
+  bind pager f    next-page
+  bind pager g    top
+  bind pager j    next-line
+  bind pager k    previous-line
+  bind pager m    noop
+  bind pager L    noop
+  bind pager r    noop
+  bind pager :  enter-command
+
+  ignore *
+  unignore from: date: subject: to: cc: reply-to:
+  unignore sender:
+  unignore priority: importance:
+  unignore organization organisation
+  unignore user-agent: x-agent: x-posting-agent: x-mailer: x-newsreader: x-mailing-list:
+  unignore mail-followup-to:
+  unignore resent- x-resent
+
+  unhdr_order *
+  hdr_order Sender: From From: To: Cc: Subject: Date: Organization: Reply-To: Message-Id: User-Agent: X-Editor: X-Mailer: X-Newsreader: X-Posting-Agent: Newsgroups: X-Resent Followup-To: Mail-Followup-To:
+
+  macro index <F6> <pipe-message>gvim\ -
+
+  message-hook .              "set mime_forward=ask-no"
+  message-hook "~h multipart" "set mime_forward=ask-yes"
+
+  set header_cache=~/.mutt/cache/headers
+  set message_cachedir=~/.mutt/cache/bodies
+  set certificate_file=~/.mutt/certificates
+
+  source ~/.mutt.colors
