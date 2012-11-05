@@ -179,12 +179,11 @@ The way it works is:
   $ mkdir sync.links
   $ cd sync.links
   $ mkdir bin
-  $ mkdir dotfiles
   $ cd ~/Projects
   $ bzr branch lp:sync.links
   $ cp sync.links/* ~/Ubuntu\ One/sync.links/bin
   $ cd ~/Ubuntu\ One/sync.links/bin
-  $ ./get.py
+  $ python get.py
 
 This will copy all your interesting dotfiles from your home
 directory into your Ubuntu One folder, which is then automatically
@@ -194,10 +193,24 @@ Your sensitive files such as your ssh keys and gpg keys are
 further encrypted with a symmetric cipher. Choose a different
 password than your ssh and gpg private passphrases.
 
+You may now want to run:
+
+  $ python put.py relink
+
+This will create symlinks from your home directory to your freshly
+copied dotfiles which are now sync'ed into Ubuntu One.
+
 When you install a new machine (or vm), your Ubuntu One folder gets
 automatically synced down from the cloud. Now you can navigate to
 your sync.links directory in U1 and create symlinks from your home
 directory to your dotfiles. Your previous environment is now
 replicated, and even better, because they are symlinks, any time you
 edit your dot files on one machine, they get synced to the cloud and
-replicated to all your other machines. Huzzah.
+replicated to all your other machines.
+
+On a fresh machine that knows about your U1 identity:
+
+  $ cd ~/Ubuntu\ One/sync.links/bin
+  $ python put.py symlinks
+
+Huzzah.
